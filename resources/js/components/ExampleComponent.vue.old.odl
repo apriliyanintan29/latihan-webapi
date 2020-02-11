@@ -1,0 +1,167 @@
+<template>
+    <div class="container">
+        <div class="left-menu">
+            <h3 class="page-title">
+                Data Master
+            </h3>
+            <p class="lead">
+                <small>Di halaman ini anda dapat mengelola data siswa, kelas, dan rombel.</small>
+            </p>
+
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item text-light bg-transparent pointer  list-group-item-action">Index Data Master</li>
+              <li class="list-group-item text-light bg-transparent pointer  list-group-item-action">Tambah Data Siswa</li>
+              <li class="list-group-item text-light bg-transparent pointer  list-group-item-action">Tambah Data Kelas</li>
+              <li class="list-group-item text-light bg-transparent pointer  list-group-item-action">Tambah Data Rombel</li>
+            </ul>
+        </div>
+
+        <div class="right-content">
+            <div
+                class="box-content">
+                <h4 class="box-title">Data Siswa-Siswa</h4>
+                <div
+                    class="pointer toggle-box"
+                    @click="toggleBoxDataSiswa">
+                    <template v-if="showBoxDataSiswa">
+                        Sembunyikan
+                    </template>
+
+                    <template v-else>
+                        Munculkan
+                    </template>
+                </div>
+                <div
+                    class="box-main-content"
+                    v-if="!loading && showBoxDataSiswa">
+                    <table
+                        v-if="!error"
+                        class="table table-striped table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Nama</th>
+                                <th>JK</th>
+                                <th>Tanggal Dibuat</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                            <tr
+                                v-for="item in content"
+                                :key="item.id">
+                                <td>{{ item.nama }}</td>
+                                <td>{{ item.jk }}</td>
+                                <td>{{ item.created_at }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div
+                        v-if="error"
+                        class="alert alert-warning"
+                        @click="aksesApi">
+                        {{ error }}
+                    </div>
+                </div>
+
+                <div
+                    v-if="loading"
+                    class="card-body">
+                    Loading...        
+                </div>
+            </div>
+        </div>
+        <vue-progress-bar></vue-progress-bar>
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                title: 'Data Siswa-Siswa',
+                content: 'Contoh konten',
+                error: null,
+                loading: false,
+                showBoxDataSiswa: true
+            }
+        },
+
+        mounted() {
+            this.aksesApi()
+        },
+
+        methods: {
+            aksesApi() {
+                this.loading = true
+                this.$Progress.start()
+
+                axios.get('/testapi')
+                .then(res => {
+                    this.content = res.data.data
+                    this.loading = false
+                    this.$Progress.finish()
+                })
+                .catch(error => {
+                    this.error = error
+                    this.loading = false
+                    this.$Progress.fail()
+                })
+            },
+
+            toggleBoxDataSiswa() {
+                this.showBoxDataSiswa = this.showBoxDataSiswa ? false : true
+            }
+        }
+    }
+</script>
+
+<style lang="scss">
+    .page-title {
+        color: var(--light);
+    }
+    .left-menu {
+        background: var(--dark);
+        color: var(--gray);
+        overflow: auto;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 240px;
+        padding: 8px;
+    }
+
+    .right-content {
+        padding-left: 260px;
+    }
+
+    .box-content {
+        background: #fff;
+        box-shadow: 0px 12px 18px rgba(0,0,0,0.4);
+        border-radius: 4px;
+        position: relative;
+        .box-main-content {
+            padding: 12px;
+        }
+        .box-title {
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 12px;
+            padding: 12px;
+        }
+    }
+
+    .pointer {
+        cursor: pointer;
+    }
+
+    .toggle-box {
+        position: absolute;
+        right: 0px;
+        top: 0px;
+        font-size: 10px;
+        border-top-right-radius: 4px;
+        background: var(--info);
+        padding: 2px 8px;
+    }
+</style>
